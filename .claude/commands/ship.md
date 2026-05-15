@@ -16,11 +16,7 @@ Push current changes to GitHub via a feature branch and open a PR to main.
 4. **Stage and commit** — stage relevant files (prefer explicit paths over `git add .`), then commit following the project style: imperative mood, concise subject line, Co-Authored-By trailer:
    ```
    git commit -m "$(cat <<'EOF'
-   <subject line>
-
-   Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
-   EOF
-   )"
+   <subject line>"
    ```
 
 5. **Push to origin**:
