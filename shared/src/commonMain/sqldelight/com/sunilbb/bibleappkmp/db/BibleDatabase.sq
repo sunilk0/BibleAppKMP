@@ -1,0 +1,41 @@
+CREATE TABLE BookEntity (
+    id TEXT PRIMARY KEY NOT NULL,
+    name TEXT NOT NULL,
+    abbreviation TEXT NOT NULL,
+    testament TEXT NOT NULL
+);
+
+CREATE TABLE ChapterEntity (
+    id TEXT PRIMARY KEY NOT NULL,
+    bookId TEXT NOT NULL,
+    number INTEGER NOT NULL
+);
+
+CREATE TABLE VerseEntity (
+    id TEXT PRIMARY KEY NOT NULL,
+    chapterId TEXT NOT NULL,
+    bookId TEXT NOT NULL,
+    number INTEGER NOT NULL,
+    text TEXT NOT NULL
+);
+
+selectAllBooks:
+SELECT * FROM BookEntity;
+
+selectChaptersByBook:
+SELECT * FROM ChapterEntity WHERE bookId = ? ORDER BY number;
+
+selectVersesByChapter:
+SELECT * FROM VerseEntity WHERE chapterId = ? ORDER BY number;
+
+insertBook:
+INSERT OR REPLACE INTO BookEntity(id, name, abbreviation, testament) VALUES (?, ?, ?, ?);
+
+insertChapter:
+INSERT OR REPLACE INTO ChapterEntity(id, bookId, number) VALUES (?, ?, ?);
+
+insertVerse:
+INSERT OR REPLACE INTO VerseEntity(id, chapterId, bookId, number, text) VALUES (?, ?, ?, ?, ?);
+
+deleteVersesByChapter:
+DELETE FROM VerseEntity WHERE chapterId = ?;
