@@ -113,6 +113,7 @@ You are working on a production-grade Bible application using Kotlin Multiplatfo
 ./gradlew test
 ./gradlew :shared:test
 ./gradlew :server:test
+
 ```
 
 ## Module Architecture

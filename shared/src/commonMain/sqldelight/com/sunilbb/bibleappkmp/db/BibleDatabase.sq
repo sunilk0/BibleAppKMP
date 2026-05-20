@@ -39,3 +39,26 @@ INSERT OR REPLACE INTO VerseEntity(id, chapterId, bookId, number, text) VALUES (
 
 deleteVersesByChapter:
 DELETE FROM VerseEntity WHERE chapterId = ?;
+
+CREATE TABLE BookmarkEntity (
+    id TEXT PRIMARY KEY NOT NULL,
+    bookId TEXT NOT NULL,
+    bookName TEXT NOT NULL,
+    chapter INTEGER NOT NULL,
+    verseNumber INTEGER NOT NULL,
+    verseText TEXT NOT NULL,
+    createdAt INTEGER NOT NULL
+);
+
+selectAllBookmarks:
+SELECT * FROM BookmarkEntity ORDER BY createdAt DESC;
+
+insertBookmark:
+INSERT OR REPLACE INTO BookmarkEntity(id, bookId, bookName, chapter, verseNumber, verseText, createdAt)
+VALUES (?, ?, ?, ?, ?, ?, ?);
+
+deleteBookmark:
+DELETE FROM BookmarkEntity WHERE id = ?;
+
+isBookmarked:
+SELECT COUNT(*) FROM BookmarkEntity WHERE id = ?;

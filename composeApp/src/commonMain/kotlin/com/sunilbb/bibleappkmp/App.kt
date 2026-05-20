@@ -2,8 +2,14 @@ package com.sunilbb.bibleappkmp
 
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Bookmarks
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
@@ -20,6 +26,7 @@ import androidx.navigation.compose.rememberNavController
 import com.sunilbb.bibleappkmp.data.database.DatabaseDriverFactory
 import com.sunilbb.bibleappkmp.presentation.createBibleViewModel
 import com.sunilbb.bibleappkmp.ui.screen.books.BooksScreen
+import com.sunilbb.bibleappkmp.ui.screen.bookmarks.BookmarksScreen
 import com.sunilbb.bibleappkmp.ui.screen.chapters.ChaptersScreen
 import com.sunilbb.bibleappkmp.ui.screen.reader.ReaderScreen
 import com.sunilbb.bibleappkmp.ui.theme.BibleTheme
@@ -36,11 +43,21 @@ fun App(driverFactory: DatabaseDriverFactory) {
 
         val selectedBookName by viewModel.selectedBookName.collectAsState()
         val readerState by viewModel.readerState.collectAsState()
+        val bookmarksState by viewModel.bookmarksState.collectAsState()
+
+        val snackbarHostState = remember { SnackbarHostState() }
+
+        LaunchedEffect(Unit) {
+            viewModel.bookmarkEvent.collect { message ->
+                snackbarHostState.showSnackbar(message)
+            }
+        }
 
         val title = when {
             currentRoute?.startsWith("reader/") == true ->
                 "$selectedBookName ${readerState.chapter}"
             currentRoute?.startsWith("chapters/") == true -> selectedBookName
+            currentRoute == "bookmarks" -> "Bookmarks"
             else -> "Bible"
         }
 
@@ -55,8 +72,19 @@ fun App(driverFactory: DatabaseDriverFactory) {
                             }
                         }
                     },
+                    actions = {
+                        if (currentRoute == "books") {
+                            IconButton(onClick = { navController.navigate("bookmarks") }) {
+                                Icon(
+                                    imageVector = Icons.Default.Bookmarks,
+                                    contentDescription = "Bookmarks",
+                                )
+                            }
+                        }
+                    },
                 )
             },
+            snackbarHost = { SnackbarHost(snackbarHostState) },
         ) { innerPadding ->
             NavHost(
                 navController = navController,
@@ -92,7 +120,23 @@ fun App(driverFactory: DatabaseDriverFactory) {
                     LaunchedEffect(bookId, chapter) {
                         viewModel.loadVerses(bookId, chapter)
                     }
-                    ReaderScreen(state = readerState)
+                    ReaderScreen(
+                        state = readerState,
+                        onToggleBookmark = { verse ->
+                            viewModel.toggleBookmark(verse, selectedBookName)
+                        },
+                        isBookmarked = { verseId -> viewModel.isVerseBookmarked(verseId) },
+                    )
+                }
+                composable("bookmarks") {
+                    BookmarksScreen(
+                        state = bookmarksState,
+                        onBookmarkClick = { bookId, chapter ->
+                            viewModel.loadChapters(bookId)
+                            navController.navigate("reader/$bookId/$chapter")
+                        },
+                        onDeleteClick = { id -> viewModel.removeBookmark(id) },
+                    )
                 }
             }
         }

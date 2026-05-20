@@ -11,6 +11,7 @@ sqldelight {
     databases {
         create("BibleDatabase") {
             packageName = "com.sunilbb.bibleappkmp.db"
+            version = 2
         }
     }
 }
