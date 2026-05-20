@@ -4,11 +4,19 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.sunilbb.bibleappkmp.data.bibleBooks
 import com.sunilbb.bibleappkmp.data.repository.BibleRepositoryImpl
+import com.sunilbb.bibleappkmp.domain.model.Bookmark
+import com.sunilbb.bibleappkmp.domain.model.Verse
+import com.sunilbb.bibleappkmp.domain.usecase.AddBookmarkUseCase
+import com.sunilbb.bibleappkmp.domain.usecase.GetBookmarksUseCase
 import com.sunilbb.bibleappkmp.domain.usecase.GetBooksUseCase
 import com.sunilbb.bibleappkmp.domain.usecase.GetChaptersUseCase
 import com.sunilbb.bibleappkmp.domain.usecase.GetVersesUseCase
+import com.sunilbb.bibleappkmp.domain.usecase.RemoveBookmarkUseCase
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
@@ -19,6 +27,9 @@ class BibleViewModel(
     private val getBooks: GetBooksUseCase,
     private val getChapters: GetChaptersUseCase,
     private val getVerses: GetVersesUseCase,
+    private val getBookmarks: GetBookmarksUseCase,
+    private val addBookmark: AddBookmarkUseCase,
+    private val removeBookmark: RemoveBookmarkUseCase,
     private val repository: BibleRepositoryImpl,
 ) : ViewModel() {
 
@@ -31,12 +42,20 @@ class BibleViewModel(
     private val _readerState = MutableStateFlow(ReaderUiState())
     val readerState: StateFlow<ReaderUiState> = _readerState.asStateFlow()
 
-    // Tracks the selected book name for the top bar title — avoids reading nav bundle on iOS
+    private val _bookmarksState = MutableStateFlow(BookmarksUiState())
+    val bookmarksState: StateFlow<BookmarksUiState> = _bookmarksState.asStateFlow()
+
     private val _selectedBookName = MutableStateFlow("Bible")
     val selectedBookName: StateFlow<String> = _selectedBookName.asStateFlow()
 
+    private val _bookmarkEvent = MutableSharedFlow<String>(extraBufferCapacity = 1)
+    val bookmarkEvent: SharedFlow<String> = _bookmarkEvent.asSharedFlow()
+
     init {
         loadBooks()
+        getBookmarks()
+            .onEach { bookmarks -> _bookmarksState.update { it.copy(bookmarks = bookmarks) } }
+            .launchIn(viewModelScope)
     }
 
     fun loadBooks() {
@@ -75,4 +94,37 @@ class BibleViewModel(
             }
             .launchIn(viewModelScope)
     }
+
+    fun toggleBookmark(verse: Verse, bookName: String) {
+        viewModelScope.launch {
+            val bookmarked = repository.isBookmarked(verse.id)
+            if (bookmarked) {
+                removeBookmark(verse.id)
+                _bookmarkEvent.emit("Bookmark removed")
+            } else {
+                addBookmark(
+                    Bookmark(
+                        id = verse.id,
+                        bookId = verse.bookId,
+                        bookName = bookName,
+                        chapter = verse.chapterId.substringAfterLast(".").toIntOrNull()
+                            ?: _readerState.value.chapter,
+                        verseNumber = verse.number,
+                        verseText = verse.text,
+                        createdAt = getCurrentTimeMillis(),
+                    )
+                )
+                _bookmarkEvent.emit("Bookmarked")
+            }
+        }
+    }
+
+    fun removeBookmark(id: String) {
+        viewModelScope.launch { removeBookmark.invoke(id) }
+    }
+
+    fun isVerseBookmarked(verseId: String): Boolean =
+        _bookmarksState.value.bookmarks.any { it.id == verseId }
 }
+
+internal expect fun getCurrentTimeMillis(): Long

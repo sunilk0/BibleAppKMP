@@ -1,5 +1,6 @@
 package com.sunilbb.bibleappkmp.presentation
 
+import com.sunilbb.bibleappkmp.domain.model.Bookmark
 import com.sunilbb.bibleappkmp.domain.model.Book
 import com.sunilbb.bibleappkmp.domain.model.Chapter
 import com.sunilbb.bibleappkmp.domain.model.Verse
@@ -22,4 +23,8 @@ data class ReaderUiState(
     val bookId: String = "",
     val chapter: Int = 0,
     val error: String? = null,
+)
+
+data class BookmarksUiState(
+    val bookmarks: List<Bookmark> = emptyList(),
 )

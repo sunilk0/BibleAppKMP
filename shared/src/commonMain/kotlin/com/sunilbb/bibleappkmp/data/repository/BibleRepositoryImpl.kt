@@ -4,6 +4,7 @@ import com.sunilbb.bibleappkmp.data.bibleBooks
 import com.sunilbb.bibleappkmp.data.chaptersForBook
 import com.sunilbb.bibleappkmp.data.api.BibleApiService
 import com.sunilbb.bibleappkmp.data.database.BibleLocalCache
+import com.sunilbb.bibleappkmp.domain.model.Bookmark
 import com.sunilbb.bibleappkmp.domain.model.Book
 import com.sunilbb.bibleappkmp.domain.model.Chapter
 import com.sunilbb.bibleappkmp.domain.model.Verse
@@ -45,6 +46,11 @@ class BibleRepositoryImpl(
             )
         }
     }
+
+    override fun getBookmarksFlow(): Flow<List<Bookmark>> = cache.getBookmarksFlow()
+    override suspend fun addBookmark(bookmark: Bookmark) = cache.insertBookmark(bookmark)
+    override suspend fun removeBookmark(id: String) = cache.deleteBookmark(id)
+    override suspend fun isBookmarked(id: String): Boolean = cache.isBookmarked(id)
 
     suspend fun fetchAndCacheVerses(bookId: String, chapter: Int) {
         val chapterId = "$bookId.$chapter"

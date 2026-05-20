@@ -1,0 +1,9 @@
+CREATE TABLE BookmarkEntity (
+    id TEXT PRIMARY KEY NOT NULL,
+    bookId TEXT NOT NULL,
+    bookName TEXT NOT NULL,
+    chapter INTEGER NOT NULL,
+    verseNumber INTEGER NOT NULL,
+    verseText TEXT NOT NULL,
+    createdAt INTEGER NOT NULL
+);
