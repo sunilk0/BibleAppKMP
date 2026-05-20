@@ -16,11 +16,7 @@ Push current changes to GitHub via a feature branch and open a PR to main.
 4. **Stage and commit** — stage relevant files (prefer explicit paths over `git add .`), then commit following the project style: imperative mood, concise subject line, Co-Authored-By trailer:
    ```
    git commit -m "$(cat <<'EOF'
-   <subject line>
-
-   Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
-   EOF
-   )"
+   <subject line>"
    ```
 
 5. **Push to origin**:
@@ -39,13 +35,14 @@ Push current changes to GitHub via a feature branch and open a PR to main.
    - [ ] iOS simulator
    - [ ] Web (JS)
 
-   🤖 Generated with [Claude Code](https://claude.com/claude-code)
-   EOF
+   
    )"
    ```
 
 7. **Report the PR URL** so the user can review it.
 
+## Repo link:
+https://github.com/sunilk0/BibleAppKMP.git/
 ## Rules
 
 - Never push directly to `main`.
@@ -54,3 +51,4 @@ Push current changes to GitHub via a feature branch and open a PR to main.
 - Don't commit: `.env`, `local.properties`, `google-services.json`, `GoogleService-Info.plist`, `*.keystore`.
 - If there are no changes to commit, tell the user and stop.
 - If `gh` is not authenticated, tell the user to run `gh auth login` first.
+
