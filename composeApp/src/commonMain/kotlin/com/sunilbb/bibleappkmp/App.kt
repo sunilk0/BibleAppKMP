@@ -120,12 +120,17 @@ fun App(driverFactory: DatabaseDriverFactory) {
                     LaunchedEffect(bookId, chapter) {
                         viewModel.loadVerses(bookId, chapter)
                     }
+                    val isBookmarked: (String) -> Boolean = remember(bookmarksState.bookmarks) {
+                        val ids = bookmarksState.bookmarks.mapTo(HashSet()) { it.id }
+                        val predicate: (String) -> Boolean = { verseId -> verseId in ids }
+                        predicate
+                    }
                     ReaderScreen(
                         state = readerState,
                         onToggleBookmark = { verse ->
                             viewModel.toggleBookmark(verse, selectedBookName)
                         },
-                        isBookmarked = { verseId -> viewModel.isVerseBookmarked(verseId) },
+                        isBookmarked = isBookmarked,
                     )
                 }
                 composable("bookmarks") {
