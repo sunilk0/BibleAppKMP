@@ -122,9 +122,6 @@ class BibleViewModel(
     fun removeBookmark(id: String) {
         viewModelScope.launch { removeBookmark.invoke(id) }
     }
-
-    fun isVerseBookmarked(verseId: String): Boolean =
-        _bookmarksState.value.bookmarks.any { it.id == verseId }
 }
 
 internal expect fun getCurrentTimeMillis(): Long
