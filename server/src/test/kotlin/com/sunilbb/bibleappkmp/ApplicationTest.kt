@@ -17,4 +17,27 @@ class ApplicationTest {
         assertEquals(HttpStatusCode.OK, response.status)
         assertEquals("Ktor: ${Greeting().greet()}", response.bodyAsText())
     }
+
+    @Test
+    fun rootResponseStartsWithKtorPrefix() = testApplication {
+        application {
+            module()
+        }
+        val body = client.get("/").bodyAsText()
+        assertTrue(body.startsWith("Ktor: "))
+    }
+
+    @Test
+    fun unknownRouteReturnsNotFound() = testApplication {
+        application {
+            module()
+        }
+        val response = client.get("/does-not-exist")
+        assertEquals(HttpStatusCode.NotFound, response.status)
+    }
+
+    @Test
+    fun serverPortConstantIsExpectedValue() {
+        assertEquals(8080, SERVER_PORT)
+    }
 }
