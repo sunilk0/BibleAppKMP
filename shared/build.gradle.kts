@@ -5,6 +5,7 @@ plugins {
     alias(libs.plugins.androidLibrary)
     alias(libs.plugins.sqldelight)
     alias(libs.plugins.kotlinSerialization)
+    alias(libs.plugins.kover)
 }
 
 sqldelight {
@@ -44,6 +45,11 @@ kotlin {
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
+            implementation(libs.kotlinx.coroutines.test)
+            implementation(libs.ktor.client.mock)
+        }
+        jvmTest.dependencies {
+            implementation(libs.sqldelight.jvm)
         }
         androidMain.dependencies {
             implementation(libs.ktor.client.okhttp)
