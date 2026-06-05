@@ -10,6 +10,8 @@ import com.sunilbb.bibleappkmp.domain.usecase.GetBookmarksUseCase
 import com.sunilbb.bibleappkmp.domain.usecase.GetBooksUseCase
 import com.sunilbb.bibleappkmp.domain.usecase.GetChaptersUseCase
 import com.sunilbb.bibleappkmp.domain.usecase.GetVersesUseCase
+import com.sunilbb.bibleappkmp.domain.usecase.IsBookmarkedUseCase
+import com.sunilbb.bibleappkmp.domain.usecase.RefreshVersesUseCase
 import com.sunilbb.bibleappkmp.domain.usecase.RemoveBookmarkUseCase
 
 fun createBibleViewModel(driverFactory: DatabaseDriverFactory): BibleViewModel {
@@ -24,6 +26,7 @@ fun createBibleViewModel(driverFactory: DatabaseDriverFactory): BibleViewModel {
         getBookmarks = GetBookmarksUseCase(repository),
         addBookmark = AddBookmarkUseCase(repository),
         removeBookmark = RemoveBookmarkUseCase(repository),
-        repository = repository,
+        refreshVerses = RefreshVersesUseCase(repository),
+        isBookmarked = IsBookmarkedUseCase(repository),
     )
 }

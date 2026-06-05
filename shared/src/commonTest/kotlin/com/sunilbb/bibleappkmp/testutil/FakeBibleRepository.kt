@@ -31,6 +31,7 @@ class FakeBibleRepository : BibleRepository {
         private set
     val addedBookmarks = mutableListOf<Bookmark>()
     val removedBookmarkIds = mutableListOf<String>()
+    val fetchAndCacheCalls = mutableListOf<Pair<String, Int>>()
     var lastRequestedChaptersBookId: String? = null
         private set
 
@@ -55,6 +56,11 @@ class FakeBibleRepository : BibleRepository {
 
     override fun getVersesFlow(bookId: String, chapter: Int): Flow<List<Verse>> =
         MutableStateFlow(versesResult).asStateFlow()
+
+    override suspend fun fetchAndCacheVerses(bookId: String, chapter: Int) {
+        errorToThrow?.let { throw it }
+        fetchAndCacheCalls += bookId to chapter
+    }
 
     override suspend fun searchPassage(reference: String): List<Verse> {
         errorToThrow?.let { throw it }

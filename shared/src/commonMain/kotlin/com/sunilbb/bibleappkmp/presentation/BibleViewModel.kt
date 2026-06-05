@@ -3,7 +3,6 @@ package com.sunilbb.bibleappkmp.presentation
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.sunilbb.bibleappkmp.data.bibleBooks
-import com.sunilbb.bibleappkmp.data.repository.BibleRepositoryImpl
 import com.sunilbb.bibleappkmp.domain.model.Bookmark
 import com.sunilbb.bibleappkmp.domain.model.Verse
 import com.sunilbb.bibleappkmp.domain.usecase.AddBookmarkUseCase
@@ -11,7 +10,10 @@ import com.sunilbb.bibleappkmp.domain.usecase.GetBookmarksUseCase
 import com.sunilbb.bibleappkmp.domain.usecase.GetBooksUseCase
 import com.sunilbb.bibleappkmp.domain.usecase.GetChaptersUseCase
 import com.sunilbb.bibleappkmp.domain.usecase.GetVersesUseCase
+import com.sunilbb.bibleappkmp.domain.usecase.IsBookmarkedUseCase
+import com.sunilbb.bibleappkmp.domain.usecase.RefreshVersesUseCase
 import com.sunilbb.bibleappkmp.domain.usecase.RemoveBookmarkUseCase
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -30,8 +32,11 @@ class BibleViewModel(
     private val getBookmarks: GetBookmarksUseCase,
     private val addBookmark: AddBookmarkUseCase,
     private val removeBookmark: RemoveBookmarkUseCase,
-    private val repository: BibleRepositoryImpl,
+    private val refreshVerses: RefreshVersesUseCase,
+    private val isBookmarked: IsBookmarkedUseCase,
 ) : ViewModel() {
+
+    private var versesJob: Job? = null
 
     private val _booksState = MutableStateFlow(BooksUiState())
     val booksState: StateFlow<BooksUiState> = _booksState.asStateFlow()
@@ -86,9 +91,10 @@ class BibleViewModel(
     fun loadVerses(bookId: String, chapter: Int) {
         _readerState.update { it.copy(isLoading = true, bookId = bookId, chapter = chapter, error = null) }
         viewModelScope.launch {
-            repository.fetchAndCacheVerses(bookId, chapter)
+            refreshVerses(bookId, chapter)
         }
-        getVerses(bookId, chapter)
+        versesJob?.cancel()
+        versesJob = getVerses(bookId, chapter)
             .onEach { verses ->
                 _readerState.update { it.copy(isLoading = false, verses = verses) }
             }
@@ -97,7 +103,7 @@ class BibleViewModel(
 
     fun toggleBookmark(verse: Verse, bookName: String) {
         viewModelScope.launch {
-            val bookmarked = repository.isBookmarked(verse.id)
+            val bookmarked = isBookmarked(verse.id)
             if (bookmarked) {
                 removeBookmark(verse.id)
                 _bookmarkEvent.emit("Bookmark removed")
@@ -119,7 +125,7 @@ class BibleViewModel(
         }
     }
 
-    fun removeBookmark(id: String) {
+    fun deleteBookmark(id: String) {
         viewModelScope.launch { removeBookmark.invoke(id) }
     }
 }
