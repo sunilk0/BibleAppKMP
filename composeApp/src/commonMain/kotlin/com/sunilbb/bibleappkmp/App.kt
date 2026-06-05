@@ -17,7 +17,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -29,12 +31,19 @@ import com.sunilbb.bibleappkmp.ui.screen.books.BooksScreen
 import com.sunilbb.bibleappkmp.ui.screen.bookmarks.BookmarksScreen
 import com.sunilbb.bibleappkmp.ui.screen.chapters.ChaptersScreen
 import com.sunilbb.bibleappkmp.ui.screen.reader.ReaderScreen
+import com.sunilbb.bibleappkmp.ui.screen.splash.SplashScreen
 import com.sunilbb.bibleappkmp.ui.theme.BibleTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun App(driverFactory: DatabaseDriverFactory) {
     BibleTheme {
+        var showSplash by remember { mutableStateOf(true) }
+        if (showSplash) {
+            SplashScreen(onTimeout = { showSplash = false })
+            return@BibleTheme
+        }
+
         val navController = rememberNavController()
         val backStackEntry by navController.currentBackStackEntryAsState()
         val currentRoute = backStackEntry?.destination?.route
