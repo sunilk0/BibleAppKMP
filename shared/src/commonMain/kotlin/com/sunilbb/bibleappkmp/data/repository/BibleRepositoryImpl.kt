@@ -52,13 +52,13 @@ class BibleRepositoryImpl(
     override suspend fun removeBookmark(id: String) = cache.deleteBookmark(id)
     override suspend fun isBookmarked(id: String): Boolean = cache.isBookmarked(id)
 
-    suspend fun fetchAndCacheVerses(bookId: String, chapter: Int) {
+    override suspend fun fetchAndCacheVerses(bookId: String, chapter: Int) {
         val chapterId = "$bookId.$chapter"
         try {
             val book = bibleBooks.find { it.id == bookId } ?: return
             val reference = "${book.name}%20$chapter"
             val response = api.getPassage(reference)
-            val verses = response.verses.mapIndexed { index, dto ->
+            val verses = response.verses.map { dto ->
                 Verse(
                     id = "$chapterId.${dto.verse}",
                     chapterId = chapterId,

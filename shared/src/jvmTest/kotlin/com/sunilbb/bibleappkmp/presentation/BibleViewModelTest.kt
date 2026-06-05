@@ -6,6 +6,8 @@ import com.sunilbb.bibleappkmp.domain.usecase.GetBookmarksUseCase
 import com.sunilbb.bibleappkmp.domain.usecase.GetBooksUseCase
 import com.sunilbb.bibleappkmp.domain.usecase.GetChaptersUseCase
 import com.sunilbb.bibleappkmp.domain.usecase.GetVersesUseCase
+import com.sunilbb.bibleappkmp.domain.usecase.IsBookmarkedUseCase
+import com.sunilbb.bibleappkmp.domain.usecase.RefreshVersesUseCase
 import com.sunilbb.bibleappkmp.domain.usecase.RemoveBookmarkUseCase
 import com.sunilbb.bibleappkmp.testutil.inMemoryCache
 import com.sunilbb.bibleappkmp.testutil.mockApiService
@@ -31,7 +33,7 @@ import kotlin.test.assertTrue
 /**
  * State-transition tests for [BibleViewModel].
  *
- * The ViewModel takes a concrete [BibleRepositoryImpl], so it is wired with a real
+ * The ViewModel is wired through use cases backed by a real [BibleRepositoryImpl] with an
  * in-memory SQLDelight cache and a Ktor MockEngine API. `viewModelScope` is pinned to an
  * [UnconfinedTestDispatcher] via Dispatchers.setMain so the init block and launched
  * coroutines run eagerly. Note that SQLDelight-backed flows (`getBookmarksFlow`,
@@ -61,7 +63,8 @@ class BibleViewModelTest {
             getBookmarks = GetBookmarksUseCase(repository),
             addBookmark = AddBookmarkUseCase(repository),
             removeBookmark = RemoveBookmarkUseCase(repository),
-            repository = repository,
+            refreshVerses = RefreshVersesUseCase(repository),
+            isBookmarked = IsBookmarkedUseCase(repository),
         )
 
     private fun repo(): BibleRepositoryImpl =
@@ -247,7 +250,7 @@ class BibleViewModelTest {
         awaitTrue { vm.bookmarksState.value.bookmarks.isNotEmpty() }
 
         // Act
-        vm.removeBookmark("john.3.16")
+        vm.deleteBookmark("john.3.16")
         advanceUntilIdle()
 
         // Assert

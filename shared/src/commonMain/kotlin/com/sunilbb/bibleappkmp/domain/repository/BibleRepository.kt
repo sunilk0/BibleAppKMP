@@ -10,6 +10,7 @@ interface BibleRepository {
     suspend fun getBooks(): List<Book>
     suspend fun getChapters(bookId: String): List<Chapter>
     fun getVersesFlow(bookId: String, chapter: Int): Flow<List<Verse>>
+    suspend fun fetchAndCacheVerses(bookId: String, chapter: Int)
     suspend fun searchPassage(reference: String): List<Verse>
 
     fun getBookmarksFlow(): Flow<List<Bookmark>>

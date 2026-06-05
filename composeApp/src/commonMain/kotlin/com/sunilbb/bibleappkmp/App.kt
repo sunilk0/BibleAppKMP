@@ -140,7 +140,7 @@ fun App(driverFactory: DatabaseDriverFactory) {
                             viewModel.loadChapters(bookId)
                             navController.navigate("reader/$bookId/$chapter")
                         },
-                        onDeleteClick = { id -> viewModel.removeBookmark(id) },
+                        onDeleteClick = { id -> viewModel.deleteBookmark(id) },
                     )
                 }
             }

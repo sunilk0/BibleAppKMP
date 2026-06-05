@@ -3,8 +3,8 @@ package com.sunilbb.bibleappkmp.data
 import com.sunilbb.bibleappkmp.domain.model.Book
 import com.sunilbb.bibleappkmp.domain.model.Chapter
 
-private val OLD_TESTAMENT = "Old Testament"
-private val NEW_TESTAMENT = "New Testament"
+private const val OLD_TESTAMENT = "Old Testament"
+private const val NEW_TESTAMENT = "New Testament"
 
 val bibleBooks: List<Book> = listOf(
     Book("genesis", "Genesis", "Gen", OLD_TESTAMENT),
